@@ -1,5 +1,8 @@
+import 'dart:io';
+
 class Message {
   bool isSender;
   String msg;
-  Message(this.isSender, this.msg);
+  File? image;
+  Message(this.isSender, this.msg, this.image);
 }
