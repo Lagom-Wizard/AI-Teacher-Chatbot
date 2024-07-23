@@ -8,6 +8,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
+//Main widget for the chat screen//
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -16,17 +17,22 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  //Text controller for input field//
   final TextEditingController _controller = TextEditingController();
   final ScrollController scrollController = ScrollController();
+  //All instance//
   final GroqAiService _groqaiservice = GroqAiService();
   final ImagePicker _picker = ImagePicker();
   final TextRecognizer _textRecognizer = TextRecognizer();
 
+  // List to store chat messages//
   List<Message> msgs = [];
   bool isTyping = false;
+  //Variables to store picked and cropped images//
   File? _imageFile;
   CroppedFile? _croppedFile;
 
+  //Function to pick an image from the gallery//
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -37,6 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  //Function to crop the picked image//
   Future<void> _cropImage() async {
     if (_imageFile != null) {
       final croppedFile = await ImageCropper().cropImage(
@@ -64,7 +71,8 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
   }
-
+  
+  //Process cropped image and extract text//
   Future<void> _processImage() async {
     if (_croppedFile == null) return;
     final inputImage = InputImage.fromFilePath(_croppedFile!.path);
@@ -74,6 +82,7 @@ class _ChatScreenState extends State<ChatScreen> {
     sendMsg(extractedText);
   }
 
+  //Function to send message and get response//
   void sendMsg(String prompt) async {
     _controller.clear();
 
@@ -112,6 +121,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  //Clean up resources//
   @override
   void dispose() {
     _textRecognizer.close();
@@ -129,6 +139,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Column(
             children: [
               const SizedBox(height: 8),
+              // Display chat messages//
               Expanded(
                 child: ListView.builder(
                   controller: scrollController,
@@ -165,6 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
                 ),
               ),
+              // Input field and send button//
               Row(
                 children: [
                   Expanded(
@@ -193,6 +205,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
+
+                  //Send message button//
                   InkWell(
                     onTap: () {
                       sendMsg(_controller.text);
@@ -210,6 +224,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
+
+                  //Pick image button//
                   InkWell(
                     onTap: _pickImage,
                     child: Container(
@@ -228,6 +244,8 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ],
           ),
+
+          // Show 'Pick Image' button when no messages are showed//
           if (msgs.isEmpty) Center(
             child: ElevatedButton.icon(
               onPressed: _pickImage,
