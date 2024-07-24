@@ -5,14 +5,18 @@ class GroqAiService {
 
   Future getLLaMA3Response(String prompt) async {
     const String endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+
+    final String teacherPrompt =
+      "You are a teacher teaching grade 5 to grade 10. Explain the concept to a student: $prompt";
+
     final Map<String, dynamic> requestBody = {
       "model": "llama3-70b-8192",
       "messages":[{
         "role":"user",
-        "content": prompt,
+        "content": teacherPrompt,
         }],
-      "max_tokens":1024,
-      "temperature":0.6,
+      "max_tokens":2048,
+      "temperature":0.7,
       "top_p":1,
       "frequency_penalty":0,
       "presence_penalty":0,

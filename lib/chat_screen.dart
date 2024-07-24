@@ -8,6 +8,7 @@ import 'package:ai_teacher_chatbot/services/ocrservice.dart';
 import 'package:ai_teacher_chatbot/services/pickcrop_image.dart';
 import 'package:flutter/material.dart';
 
+//Main ChatScreen widget class
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -15,6 +16,7 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
+// State class for ChatScreen
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController scrollController = ScrollController();
@@ -22,11 +24,13 @@ class _ChatScreenState extends State<ChatScreen> {
   final OCRService _ocrService = OCRService();
   final PickCropImageService _pickCropImageService = PickCropImageService();
 
+  // State Variables
   List<Message> msgs = [];
   bool isTyping = false;
   File? _imageFile;
   File? _croppedFile;
 
+  // Function to pick and crop image
   Future<void> _pickAndCropImage() async {
     _imageFile = await _pickCropImageService.pickImage();
     if (_imageFile != null) {
@@ -41,6 +45,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // Function to process cropped image using OCR service to extract text
   Future<void> _processImage(Message imageMessage) async {
     if (_croppedFile == null) return;
     final extractedText = await _ocrService.processImage(_croppedFile!);
@@ -56,6 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // Function to send message to LLM service and response handling
   void sendMsg(String prompt, {bool fromImage = false}) async {
     _controller.clear();
 
@@ -98,6 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // Get size of image file
   Future<Size> _getImageSize(File image) async {
     final Completer<Size> completer = Completer();
     final Image imageFile = Image.file(image);
@@ -109,11 +116,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return completer.future;
   }
 
+  // To show Image and dialog together on chat
   void _showImageDialog(File image) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        final imageFile = Image.file(image);
         return FutureBuilder<Size>(
           future: _getImageSize(image),
           builder: (BuildContext context, AsyncSnapshot<Size> snapshot) {
@@ -162,6 +169,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  // Build method for Chat Screen widget
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,6 +188,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   shrinkWrap: true,
                   reverse: true,
                   itemBuilder: (context, index) {
+                    //Typing indicator
                     if (isTyping && index == 0) {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,6 +300,8 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ],
           ),
+
+          // Display "pick image button" when there are no messages
           if (msgs.isEmpty)
             Center(
               child: ElevatedButton.icon(
