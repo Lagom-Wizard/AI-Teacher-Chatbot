@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
-import 'package:ai_teacher_chatbot/message.dart';
+import 'package:ai_teacher_chatbot/models/message.dart';
 import 'package:chat_bubbles/bubbles/bubble_normal.dart';
 import 'package:ai_teacher_chatbot/services/llmservice.dart';
 import 'package:ai_teacher_chatbot/services/ocrservice.dart';
 import 'package:ai_teacher_chatbot/services/pickcrop_image.dart';
+import 'package:ai_teacher_chatbot/ui/widgets/navigation_drawer.dart';
 import 'package:flutter/material.dart';
 
 //Main ChatScreen widget class
@@ -173,9 +174,45 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: NavigationDrawerWidget(),
       appBar: AppBar(
-        title: const Text("Teacher Helper"),
-      ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+          children: [
+            const Expanded(
+              child: Center(
+                child: 
+                  Text(
+                    "TeacherHelper",
+                    style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                      // fontFamily: ,
+                      fontSize: 24,
+                    )
+                  ),
+                ),
+              ),
+            IconButton(
+              icon: const Icon(Icons.edit_square),
+              disabledColor: Colors.grey,
+              onPressed : (){
+                // Action to create new chat
+                // Disabled when it is the new screen
+              },
+            ),
+          ],
+        ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.black,
+        ),
       body: Stack(
         children: [
           Column(

@@ -1,4 +1,4 @@
-import 'package:ai_teacher_chatbot/chat_screen.dart';
+import 'package:ai_teacher_chatbot/ui/views/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 
