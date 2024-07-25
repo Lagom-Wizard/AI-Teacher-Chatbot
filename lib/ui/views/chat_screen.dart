@@ -8,8 +8,9 @@ import 'package:ai_teacher_chatbot/services/ocrservice.dart';
 import 'package:ai_teacher_chatbot/services/pickcrop_image.dart';
 import 'package:ai_teacher_chatbot/ui/widgets/navigation_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:ai_teacher_chatbot/services/share.dart';
 
-//Main ChatScreen widget class
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -17,7 +18,6 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-// State class for ChatScreen
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController scrollController = ScrollController();
@@ -25,13 +25,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final OCRService _ocrService = OCRService();
   final PickCropImageService _pickCropImageService = PickCropImageService();
 
-  // State Variables
   List<Message> msgs = [];
   bool isTyping = false;
   File? _imageFile;
   File? _croppedFile;
 
-  // Function to pick and crop image
   Future<void> _pickAndCropImage() async {
     _imageFile = await _pickCropImageService.pickImage();
     if (_imageFile != null) {
@@ -46,7 +44,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // Function to process cropped image using OCR service to extract text
   Future<void> _processImage(Message imageMessage) async {
     if (_croppedFile == null) return;
     final extractedText = await _ocrService.processImage(_croppedFile!);
@@ -58,24 +55,25 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     if (extractedText.isNotEmpty) {
-      sendMsg(extractedText, fromImage: true);
+      await sendMsg(extractedText, fromImage: true);
     }
   }
 
-  // Function to send message to LLM service and response handling
-  void sendMsg(String prompt, {bool fromImage = false}) async {
+  Future<void> sendMsg(String prompt, {bool fromImage = false}) async {
     _controller.clear();
 
     if (prompt.isNotEmpty) {
+      Message newMessage = Message(true, prompt, null);
       setState(() {
         if (!fromImage) {
-          msgs.insert(0, Message(true, prompt, null));
+          msgs.insert(0, newMessage);
         }
         isTyping = true;
       });
 
       scrollController.animateTo(0.0,
           duration: const Duration(seconds: 1), curve: Curves.easeOut);
+
       final response = await _groqaiservice.getLLaMA3Response(prompt);
 
       if (response.statusCode == 200) {
@@ -83,16 +81,21 @@ class _ChatScreenState extends State<ChatScreen> {
         if (responseBody.containsKey('choices')) {
           setState(() {
             isTyping = false;
-            msgs.insert(
-              0,
-              Message(
-                false,
+            if (fromImage) {
+              // Find the image message and add response to it
+              final imageMsg = msgs.firstWhere((msg) => msg.msg == prompt && msg.image != null);
+              imageMsg.responses.add(
                 responseBody["choices"][0]["message"]["content"]
                     .toString()
                     .trimLeft(),
-                null,
-              ),
-            );
+              );
+            } else {
+              newMessage.responses.add(
+                responseBody["choices"][0]["message"]["content"]
+                    .toString()
+                    .trimLeft(),
+              );
+            }
           });
           scrollController.animateTo(0.0,
               duration: const Duration(seconds: 1), curve: Curves.easeOut);
@@ -105,7 +108,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // Get size of image file
   Future<Size> _getImageSize(File image) async {
     final Completer<Size> completer = Completer();
     final Image imageFile = Image.file(image);
@@ -117,7 +119,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return completer.future;
   }
 
-  // To show Image and dialog together on chat
   void _showImageDialog(File image) {
     showDialog(
       context: context,
@@ -129,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
               final Size imageSize = snapshot.data!;
               final double aspectRatio = imageSize.width / imageSize.height;
               return Dialog(
-                insetPadding: EdgeInsets.all(10),
+                insetPadding: const EdgeInsets.all(10),
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.8,
                   height: (MediaQuery.of(context).size.width * 0.8) / aspectRatio,
@@ -156,7 +157,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               );
             } else {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             }
           },
         );
@@ -170,7 +171,6 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  // Build method for Chat Screen widget
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,26 +183,24 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Expanded(
               child: Center(
-                child: 
-                  Text(
-                    "TeacherHelper",
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
-                      // fontFamily: ,
-                      fontSize: 24,
-                    )
+                child: Text(
+                  "TeacherHelper",
+                  style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
                   ),
                 ),
               ),
+            ),
             IconButton(
               icon: const Icon(Icons.edit_square),
               disabledColor: Colors.grey,
-              onPressed : (){
+              onPressed: () {
                 // Action to create new chat
                 // Disabled when it is the new screen
               },
@@ -212,7 +210,7 @@ class _ChatScreenState extends State<ChatScreen> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
-        ),
+      ),
       body: Stack(
         children: [
           Column(
@@ -225,7 +223,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   shrinkWrap: true,
                   reverse: true,
                   itemBuilder: (context, index) {
-                    //Typing indicator
                     if (isTyping && index == 0) {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,37 +240,70 @@ class _ChatScreenState extends State<ChatScreen> {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
                         child: Column(
-                          crossAxisAlignment: msg.isSender
-                              ? CrossAxisAlignment.end
-                              : CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (msg.image != null)
-                              GestureDetector(
-                                onTap: () => _showImageDialog(msg.image!),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
-                                  child: Image.file(
-                                    msg.image!,
-                                    width: 150,
-                                    height: 150,
-                                  ),
-                                ),
+                            Container(
+                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                              decoration: BoxDecoration(
+                                color: Colors.cyan,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                            if (msg.msg.isNotEmpty)
-                              BubbleNormal(
-                                text: msg.msg,
-                                isSender: msg.isSender,
-                                color: msg.isSender
-                                    ? Colors.blue.shade100
-                                    : Colors.grey.shade200,
+                              padding: const EdgeInsets.all(8.0),
+                              child: Stack(
+                              children: [
+                                Column(
+                                crossAxisAlignment: msg.isSender
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
+                                children: [
+                                  if (msg.image != null)
+                                    GestureDetector(
+                                      onTap: () => _showImageDialog(msg.image!),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 8.0),
+                                        child: Image.file(
+                                          msg.image!,
+                                          width: 150,
+                                          height: 150,
+                                        ),
+                                      ),
+                                    ),
+                                  if (msg.msg.isNotEmpty)
+                                    BubbleNormal(
+                                      text: msg.msg,
+                                      isSender: msg.isSender,
+                                      color: msg.isSender
+                                          ? Colors.blue.shade100
+                                          : Colors.grey.shade200,
+                                    ),
+                                  ...msg.responses.map((response) {
+                                    return BubbleNormal(
+                                      text: response,
+                                      isSender: false,
+                                      color: Colors.grey.shade200,
+                                    );
+                                  }).toList(),
+                                ],
                               ),
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
+                            Positioned(
+                              top: 0,
+                              left: 4,
+                              child: IconButton(
+                                icon: const Icon(Icons.share, color: Colors.white),
+                              onPressed: () {
+                                shareMessage(msg);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]),
+                );
+              }
+            },
+          ),
+        ),
               Row(
                 children: [
                   Expanded(
@@ -337,8 +367,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ],
           ),
-
-          // Display "pick image button" when there are no messages
           if (msgs.isEmpty)
             Center(
               child: ElevatedButton.icon(

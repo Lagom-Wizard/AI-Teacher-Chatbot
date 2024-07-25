@@ -38,6 +38,7 @@ dependencies:
   google_mlkit_text_recognition: ^0.13.0
   image_cropper: ^6.0.0
   get_it: 7.7.0
+  share_plus: ^4.4.0
 
 dev_dependencies:
   flutter_test:
