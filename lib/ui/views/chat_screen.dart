@@ -129,7 +129,7 @@ class _ChatScreenState extends State<ChatScreen> {
               final Size imageSize = snapshot.data!;
               final double aspectRatio = imageSize.width / imageSize.height;
               return Dialog(
-                insetPadding: EdgeInsets.all(10),
+                insetPadding: const EdgeInsets.all(10),
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.8,
                   height: (MediaQuery.of(context).size.width * 0.8) / aspectRatio,
@@ -156,7 +156,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               );
             } else {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             }
           },
         );
@@ -174,7 +174,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(

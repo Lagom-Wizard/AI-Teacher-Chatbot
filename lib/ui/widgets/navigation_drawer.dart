@@ -3,10 +3,12 @@ import 'package:ai_teacher_chatbot/ui/views/chat_screen.dart';
 // import 'package:ai_teacher_chatbot/ui/views/login_view.dart';
 
 class NavigationDrawerWidget extends StatelessWidget {
-  final padding = EdgeInsets.symmetric(horizontal: 20);
+  final padding = const EdgeInsets.symmetric(horizontal: 20);
+
+  const NavigationDrawerWidget({super.key});
   @override
   Widget build(BuildContext context) {
-    final name = 'Ms Nguyen';
+    const name = 'Ms Nguyen';
     const urlImage =
         'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80';
 
@@ -37,7 +39,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                           onClicked: () => selectedItem(context, 1),
                         ),
                         const SizedBox(height: 16),
-                        Divider(color: Colors.white70),
+                        const Divider(color: Colors.white70),
                         const SizedBox(height: 16),
                         buildMenuItem(
                           text: 'Workflow',
@@ -65,22 +67,22 @@ class NavigationDrawerWidget extends StatelessWidget {
   }) =>
       InkWell(
         child: Container(
-          padding: padding.add(EdgeInsets.symmetric(vertical: 40)),
+          padding: padding.add(const EdgeInsets.symmetric(vertical: 40)),
           child: Row(
             children: [
               CircleAvatar(radius: 20, backgroundImage: NetworkImage(urlImage)),
-              SizedBox(width: 15),
+              const SizedBox(width: 15),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     name,
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                    style: const TextStyle(fontSize: 20, color: Colors.white),
                   ),
                   const SizedBox(height: 4),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               IconButton(
                 icon: const Icon(Icons.more_horiz, color: Colors.white),
                 onPressed : (){
@@ -93,15 +95,15 @@ class NavigationDrawerWidget extends StatelessWidget {
       );
 
   Widget buildSearchField() {
-    final color = Colors.white;
+    const color = Colors.white;
 
     return TextField(
-      style: TextStyle(color: color),
+      style: const TextStyle(color: color),
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         hintText: 'Search',
-        hintStyle: TextStyle(color: color),
-        prefixIcon: Icon(Icons.search, color: color),
+        hintStyle: const TextStyle(color: color),
+        prefixIcon: const Icon(Icons.search, color: color),
         filled: true,
         fillColor: Colors.white12,
         enabledBorder: OutlineInputBorder(
@@ -121,12 +123,12 @@ class NavigationDrawerWidget extends StatelessWidget {
     required IconData icon,
     VoidCallback? onClicked,
   }) {
-    final color = Colors.white;
-    final hoverColor = Colors.white70;
+    const color = Colors.white;
+    const hoverColor = Colors.white70;
 
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(text, style: TextStyle(color: color)),
+      title: Text(text, style: const TextStyle(color: color)),
       hoverColor: hoverColor,
       onTap: onClicked,
     );
