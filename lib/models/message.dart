@@ -4,5 +4,6 @@ class Message {
   bool isSender;
   String msg;
   File? image;
-  Message(this.isSender, this.msg, this.image);
+  List<String> responses;
+  Message(this.isSender, this.msg, this.image) : responses = [];
 }
