@@ -5,6 +5,7 @@ class GroqAiService {
 
   Future getLLaMA3Response(String prompt) async {
     const String endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+    const String apiKey = "your_api_key";
 
     final String teacherPrompt =
       "You are a teacher teaching grade 5 to grade 10. Explain the concept to a student: $prompt";
@@ -27,7 +28,7 @@ class GroqAiService {
 
     final Map<String, String> headers = {
       //API Key
-      "Authorization": "Bearer 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",
+      "Authorization": "Bearer $apiKey",
       "Content-Type": "application/json",
       "Accept": "application/json"
     };
