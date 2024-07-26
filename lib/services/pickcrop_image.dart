@@ -20,7 +20,7 @@ class PickCropImageService {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: imageFile.path,
       compressFormat: ImageCompressFormat.jpg,
-      compressQuality: 100,
+      compressQuality: 50,
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Cropper',

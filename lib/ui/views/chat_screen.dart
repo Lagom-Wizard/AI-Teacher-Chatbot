@@ -21,15 +21,16 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController scrollController = ScrollController();
-  final GroqAiService _groqaiservice = GroqAiService();
-  final OCRService _ocrService = OCRService();
-  final PickCropImageService _pickCropImageService = PickCropImageService();
+  final GroqAiService _groqaiservice = GroqAiService(); // Service for AI response
+  final OCRService _ocrService = OCRService(); // Service for OCR processing
+  final PickCropImageService _pickCropImageService = PickCropImageService(); //Service for image picking and cropping
 
-  List<Message> msgs = [];
-  bool isTyping = false;
+  List<Message> msgs = []; // List to store messages
+  bool isTyping = false; // Show typing indicator
   File? _imageFile;
   File? _croppedFile;
 
+  // Function to pick and crop image
   Future<void> _pickAndCropImage() async {
     _imageFile = await _pickCropImageService.pickImage();
     if (_imageFile != null) {
@@ -38,12 +39,13 @@ class _ChatScreenState extends State<ChatScreen> {
         final imageMessage = Message(true, '', _croppedFile);
         setState(() {
           msgs.insert(0, imageMessage);
-        });
-        await _processImage(imageMessage);
+        }); // Insert the image into chat
+        await _processImage(imageMessage); // Process cropped image to text
       }
     }
   }
 
+  // Function to process image using OCR
   Future<void> _processImage(Message imageMessage) async {
     if (_croppedFile == null) return;
     final extractedText = await _ocrService.processImage(_croppedFile!);
@@ -55,10 +57,11 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     if (extractedText.isNotEmpty) {
-      await sendMsg(extractedText, fromImage: true);
+      await sendMsg(extractedText, fromImage: true); // Send extracted text as a message
     }
   }
 
+  // Function to send message
   Future<void> sendMsg(String prompt, {bool fromImage = false}) async {
     _controller.clear();
 
@@ -68,13 +71,13 @@ class _ChatScreenState extends State<ChatScreen> {
         if (!fromImage) {
           msgs.insert(0, newMessage);
         }
-        isTyping = true;
+        isTyping = true; // Show typing indicator
       });
 
       scrollController.animateTo(0.0,
           duration: const Duration(seconds: 1), curve: Curves.easeOut);
 
-      final response = await _groqaiservice.getLLaMA3Response(prompt);
+      final response = await _groqaiservice.getLLaMA3Response(prompt); // Get AI response
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
@@ -108,6 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // Function to get size of image file
   Future<Size> _getImageSize(File image) async {
     final Completer<Size> completer = Completer();
     final Image imageFile = Image.file(image);
@@ -119,6 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return completer.future;
   }
 
+  // Function to show image
   void _showImageDialog(File image) {
     showDialog(
       context: context,
@@ -174,7 +179,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(), // Navigation drawer
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -201,7 +206,7 @@ class _ChatScreenState extends State<ChatScreen> {
               icon: const Icon(Icons.edit_square),
               disabledColor: Colors.grey,
               onPressed: () {
-                // Action to create new chat
+                // Action to create new chat (Have not done it yet)
                 // Disabled when it is the new screen
               },
             ),
@@ -258,7 +263,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 children: [
                                   if (msg.image != null)
                                     GestureDetector(
-                                      onTap: () => _showImageDialog(msg.image!),
+                                      onTap: () => _showImageDialog(msg.image!), // Show image in dialog on tap
                                       child: Padding(
                                         padding: const EdgeInsets.only(bottom: 8.0),
                                         child: Image.file(
@@ -291,7 +296,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               child: IconButton(
                                 icon: const Icon(Icons.share, color: Colors.white),
                               onPressed: () {
-                                shareMessage(msg);
+                                shareMessage(msg); // Share message functionality
                               },
                             ),
                           ),
@@ -321,7 +326,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             controller: _controller,
                             textCapitalization: TextCapitalization.sentences,
                             onSubmitted: (value) {
-                              sendMsg(value);
+                              sendMsg(value); // Send message on submit
                             },
                             textInputAction: TextInputAction.send,
                             showCursor: true,
@@ -334,7 +339,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   InkWell(
                     onTap: () {
-                      sendMsg(_controller.text);
+                      sendMsg(_controller.text); // Send message on tap
                     },
                     child: Container(
                       height: 40,
@@ -350,7 +355,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   InkWell(
-                    onTap: _pickAndCropImage,
+                    onTap: _pickAndCropImage, // Pick and crop image on tap
                     child: Container(
                       height: 40,
                       width: 40,
@@ -370,7 +375,7 @@ class _ChatScreenState extends State<ChatScreen> {
           if (msgs.isEmpty)
             Center(
               child: ElevatedButton.icon(
-                onPressed: _pickAndCropImage,
+                onPressed: _pickAndCropImage, // Pick Image button if no messages are shown
                 icon: const Icon(Icons.image, size: 48),
                 label: const Text("Pick Image", style: TextStyle(fontSize: 24)),
                 style: ElevatedButton.styleFrom(

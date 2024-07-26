@@ -26,6 +26,7 @@ class GroqAiService {
       "stream":false};
 
     final Map<String, String> headers = {
+      //API Key
       "Authorization": "Bearer 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",
       "Content-Type": "application/json",
       "Accept": "application/json"
