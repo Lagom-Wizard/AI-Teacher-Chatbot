@@ -50,8 +50,6 @@
 [![Meta][Meta]][Meta-url]
 [![Android Studio][Android Studio]][Android-url]
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 <!-- Project Background -->
 
 ## Project Background
@@ -210,6 +208,8 @@ These are the required softwares to test the mobile development of respective OS
 
     <img src="./assets/chatbot_home_page.png" width="250">
     <img src="./assets/chatbot_prompt_example.png" width="250">
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
